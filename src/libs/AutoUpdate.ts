@@ -1,9 +1,10 @@
 import { Endpoints } from '@octokit/types';
-import Config from '../libs/Config';
-import ChatHelper from '../libs/ChatHelper';
+import Config from './Config';
+import ChatHelper from './ChatHelper';
 
-type GetReleasesResponse = Endpoints['GET /repos/{owner}/{repo}/releases']['response']['data'];
+type GetReleasesResponse = Endpoints['GET /repos/{owner}/{repo}/releases/latest']['response']['data'];
 
+// TODO: Maybe pass these to updateScript as arguments instead?
 const REPO = 'EastArctica/JSMacros-Scripts';
 const CONFIG_PATH = './config/EastArctica-scripts.json';
 // This is the number of spaces to use for indentation in the config file
@@ -15,11 +16,10 @@ function getLatestReleaseInfo() {
     if (req.responseCode !== 200) return;
 
     const res = JSON.parse(req.text()) as GetReleasesResponse;
-
-    return res[0];
+    return res;
 }
 
-function getMetadata(release: GetReleasesResponse[0]) {
+function getMetadata(release: GetReleasesResponse) {
     const metadataAsset = release.assets.find((asset) => asset.name === 'metadata.json');
     if (!metadataAsset) return;
 
@@ -30,7 +30,7 @@ function getMetadata(release: GetReleasesResponse[0]) {
     return JSON.parse(req.text());
 }
 
-function updateScript(path: string) {
+export function updateScript(path: string) {
     const scriptFile = path.split('\\').pop();
     const scriptName = scriptFile.split('.')[0];
     const latestRelease = getLatestReleaseInfo();
@@ -60,12 +60,8 @@ function updateScript(path: string) {
     const newScript = req.text();
     FS.open(path).write(newScript);
 
-    Chat.log(
-        `[Updater] Updated ${scriptName} from ${config[scriptName].version || 'unknown'} to ${metadata[scriptName].version}`
-    );
+    ChatHelper.success(`[Updater] Updated ${scriptName} from ${currentVersion || 'unknown'} to ${latestVersion}`);
 
-    config.updater[scriptName].version = metadata[scriptName].version;
+    config.updater[scriptName].version = latestVersion;
     Config.writeConfig(CONFIG_PATH, config, CONFIG_SPACES);
 }
-
-updateScript(__filename);
