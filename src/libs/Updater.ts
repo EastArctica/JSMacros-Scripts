@@ -4,15 +4,8 @@ import ChatHelper from './ChatHelper';
 
 type GetReleasesResponse = Endpoints['GET /repos/{owner}/{repo}/releases/latest']['response']['data'];
 
-// TODO: Maybe pass these to updateScript as arguments instead?
-const REPO = 'EastArctica/JSMacros-Scripts';
-const CONFIG_PATH = './config/EastArctica-scripts.json';
-// This is the number of spaces to use for indentation in the config file
-// Some people prefer 2, some prefer 4 or even 8 so I'll leave it configurable
-const CONFIG_SPACES = 4;
-
-function getLatestReleaseInfo() {
-    const req = Request.get(`https://api.github.com/repos/${REPO}/releases/latest`);
+function getLatestReleaseInfo(repo: string) {
+    const req = Request.get(`https://api.github.com/repos/${repo}/releases/latest`);
     if (req.responseCode !== 200) return;
 
     const res = JSON.parse(req.text()) as GetReleasesResponse;
@@ -31,10 +24,10 @@ function getMetadata(release: GetReleasesResponse) {
 }
 
 // Returns whether the script was updated
-export function updateScript(path: string): boolean {
+export function updateScript(path: string, repo: string, configPath: string): boolean {
     const scriptFile = path.split('\\').pop();
     const scriptName = scriptFile.split('.')[0];
-    const latestRelease = getLatestReleaseInfo();
+    const latestRelease = getLatestReleaseInfo(repo);
     if (!latestRelease) {
         ChatHelper.error('[Updater] Failed to get latest release info');
         return false;
@@ -51,7 +44,7 @@ export function updateScript(path: string): boolean {
     }
     const latestVersion = metadata[scriptName].version;
 
-    const config = Config.readConfig(CONFIG_PATH, {
+    const config = Config.readConfig(configPath, {
         updater: {
             [scriptName]: {
                 version: '0.0.0',
@@ -79,7 +72,7 @@ export function updateScript(path: string): boolean {
     ChatHelper.success(`[Updater] Updated ${scriptName} from ${currentVersion || 'unknown'} to ${latestVersion}`);
 
     config.updater[scriptName].version = latestVersion;
-    Config.writeConfig(CONFIG_PATH, config, CONFIG_SPACES);
+    Config.writeConfig(configPath, config, 4);
 
     return true;
 }
