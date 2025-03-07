@@ -30,15 +30,25 @@ function getMetadata(release: GetReleasesResponse) {
     return JSON.parse(req.text());
 }
 
-export function updateScript(path: string) {
+// Returns whether the script was updated
+export function updateScript(path: string): boolean {
     const scriptFile = path.split('\\').pop();
     const scriptName = scriptFile.split('.')[0];
     const latestRelease = getLatestReleaseInfo();
-    if (!latestRelease) return ChatHelper.error('[Updater] Failed to get latest release info');
+    if (!latestRelease) {
+        ChatHelper.error('[Updater] Failed to get latest release info');
+        return false;
+    }
 
     const metadata = getMetadata(latestRelease);
-    if (!metadata) return ChatHelper.error('[Updater] Failed to get metadata');
-    if (!metadata[scriptName]) return ChatHelper.error('[Updater] Metadata does not contain script info');
+    if (!metadata) {
+        ChatHelper.error('[Updater] Failed to get metadata');
+        return false;
+    }
+    if (!metadata[scriptName]) {
+        ChatHelper.error('[Updater] Metadata does not contain script info');
+        return false;
+    }
     const latestVersion = metadata[scriptName].version;
 
     const config = Config.readConfig(CONFIG_PATH, {
@@ -52,10 +62,16 @@ export function updateScript(path: string) {
     if (currentVersion === latestVersion) return;
 
     const asset = latestRelease.assets.find((asset) => asset.name === scriptFile);
-    if (!asset) return ChatHelper.error('[Updater] Failed to find script asset');
+    if (!asset) {
+        ChatHelper.error('[Updater] Failed to find script asset');
+        return false;
+    }
 
     const req = Request.get(asset.browser_download_url);
-    if (req.responseCode !== 200) return ChatHelper.error('[Updater] Failed to download the latest version');
+    if (req.responseCode !== 200) {
+        ChatHelper.error('[Updater] Failed to download the latest version');
+        return false;
+    }
 
     const newScript = req.text();
     FS.open(path).write(newScript);
@@ -64,4 +80,6 @@ export function updateScript(path: string) {
 
     config.updater[scriptName].version = latestVersion;
     Config.writeConfig(CONFIG_PATH, config, CONFIG_SPACES);
+
+    return true;
 }
