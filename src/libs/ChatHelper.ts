@@ -1,25 +1,29 @@
 export default class ChatHelper {
-    static log(message: string): void {
+    static log(message: any): void {
         Chat.log(message);
     }
 
-    static warn(message: string): void {
+    static warn(message: any): void {
         Chat.log(Chat.ampersandToSectionSymbol(`&6[WARNING] &e${this.escapeAmpersands(message)}`));
     }
 
-    static error(message: string): void {
-        Chat.log(Chat.ampersandToSectionSymbol(`&6[ERROR] &4${this.escapeAmpersands(message)}`));
+    static error(message: any): void {
+        Chat.log(Chat.ampersandToSectionSymbol(`&6[ERROR] &c${this.escapeAmpersands(message)}`));
     }
 
-    static info(message: string): void {
+    static info(message: any): void {
         Chat.log(Chat.ampersandToSectionSymbol(`&6[INFO] &f${this.escapeAmpersands(message)}`));
     }
 
-    static success(message: string): void {
-        Chat.log(Chat.ampersandToSectionSymbol(`&6[SUCCESS] &a${this.escapeAmpersands(message)})}`));
+    static success(message: any): void {
+        Chat.log(Chat.ampersandToSectionSymbol(`&6[SUCCESS] &a${this.escapeAmpersands(message)}`));
     }
 
-    private static escapeAmpersands(message: string): string {
-        return message.replaceAll('&', '&&');
+    private static escapeAmpersands(message: any): string {
+        if (typeof message === 'string') {
+            return message.replaceAll('&', '&&');
+        }
+
+        return message;
     }
 }
