@@ -4,5 +4,6 @@
     "semi": true,
     "singleQuote": true,
     "printWidth": 120,
-    "quoteProps": "consistent"
+    "quoteProps": "consistent",
+    "endOfLine": "lf"
 }
