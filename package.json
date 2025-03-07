@@ -27,7 +27,6 @@
         "@types/glob": "^8.1.0",
         "@types/lodash": "^4.17.16",
         "typescript": "^5.7.2",
-        "tsc": "^2.0.4",
         "glob": "^11.0.1",
         "prettier": "3.5.3"
     }
