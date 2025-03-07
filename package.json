@@ -1,0 +1,10 @@
+{
+	"dependencies": {
+		"tsc": "^2.0.4",
+		"typescript": "^5.7.2"
+	},
+	"devDependencies": {
+		"@octokit/rest": "^21.1.1",
+		"@octokit/types": "^13.8.0"
+	}
+}
