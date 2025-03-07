@@ -3,10 +3,18 @@ import merge from 'lodash/merge';
 
 export default class Config {
     public static readConfig<T extends object>(path: string, defaultConfig: T, spaces: number = 4): T {
-        const file = FS.open(path);
         if (!FS.exists(path)) {
+            const dirs = path.split('/');
+            dirs.pop();
+            let dir = '';
+            for (const d of dirs) {
+                dir += `${d}/`;
+                if (!FS.exists(dir)) FS.makeDir(dir);
+            }
+
             FS.open(path).write(JSON.stringify(defaultConfig, null, spaces));
         }
+        const file = FS.open(path);
 
         try {
             const readFile = file.read();
