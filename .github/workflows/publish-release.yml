@@ -1,0 +1,70 @@
+name: Publish Release
+
+on:
+    release:
+        types: [published]
+
+jobs:
+    Build-And-Publish:
+        runs-on: ubuntu-latest
+        strategy:
+            matrix:
+                node-version: [lts/jod]
+        steps:
+            - name: Checkout the sources
+              uses: actions/checkout@v4
+              with:
+                  ref: ${{ github.ref_name }}
+
+            - name: Install pnpm
+              uses: pnpm/action-setup@v4
+              with:
+                  version: 10
+
+            - name: Use Node.js ${{ matrix.node-version }}
+              uses: actions/setup-node@v4
+              with:
+                  node-version: ${{ matrix.node-version }}
+                  cache: 'pnpm'
+
+            - name: Install dependencies
+              run: pnpm install
+
+            - name: Build
+              run: pnpm build
+
+            - name: Generate metadata
+              run: pnpm generate-metadata
+
+            - name: Save build artifacts in the action
+              uses: actions/upload-artifact@v4
+              with:
+                  name: Artifacts for release
+                  path: |
+                      dist/*.js
+                      dist/metadata.json
+
+            - name: Install GitHub CLI
+              run: sudo apt-get update && sudo apt-get install -y gh
+
+            - name: Upload scripts
+              run: |
+                  JS_FILES=$(find dist -name "*.js" -print0)
+                  if [[ -z "$JS_FILES" ]]; then
+                      echo "No Scripts files found in dist directory."
+                  else
+                      IFS=$'\n' read -r -d '' -a FILES <<< "$JS_FILES"
+                      for FILE in "${FILES[@]}"; do
+                          echo "Uploading asset: $FILE"
+                          gh release upload ${{ github.event.release.tag_name }} "$FILE" --repo=${{ github.repository }} --token=${{ secrets.GITHUB_TOKEN }}
+                      done
+                  fi
+
+            - name: Upload metadata to the Github release
+              uses: actions/upload-release-asset@v1
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              with:
+                  upload_url: ${{ github.event.release.upload_url }}
+                  asset_path: dist/metadata.json
+                  asset_name: metadata.json
