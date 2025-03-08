@@ -27,8 +27,9 @@
         "@rspack/core": "^1.2.7",
         "@types/glob": "^8.1.0",
         "@types/lodash": "^4.17.16",
-        "typescript": "^5.7.2",
         "glob": "^11.0.1",
-        "prettier": "3.5.3"
+        "prettier": "3.5.3",
+        "ts-node": "^10.9.2",
+        "typescript": "^5.7.2"
     }
 }
