@@ -1,5 +1,4 @@
 {
-    "name": "example-tps-display-service",
     "version": "1.0.0",
     "title": "Example TPS Display Service",
     "description": "An example service that displays the current TPS of the node."
