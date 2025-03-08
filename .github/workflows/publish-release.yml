@@ -48,6 +48,8 @@ jobs:
               run: sudo apt-get update && sudo apt-get install -y gh
 
             - name: Upload scripts
+              env:
+                  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               run: |
                   readarray -d '' -t FILES < <(find dist -name "*.js" -print0)
                   if [ ${#FILES[@]} -eq 0 ]; then
@@ -62,7 +64,7 @@ jobs:
             - name: Upload metadata to the Github release
               uses: actions/upload-release-asset@v1
               env:
-                  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               with:
                   upload_url: ${{ github.event.release.upload_url }}
                   asset_path: dist/metadata.json
