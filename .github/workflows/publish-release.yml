@@ -49,11 +49,10 @@ jobs:
 
             - name: Upload scripts
               run: |
-                  JS_FILES=$(find dist -name "*.js" -print0)
-                  if [[ -z "$JS_FILES" ]]; then
+                  readarray -d '' -t FILES < <(find dist -name "*.js" -print0)
+                  if [ ${#FILES[@]} -eq 0 ]; then
                       echo "No Scripts files found in dist directory."
                   else
-                      IFS=$'\n' read -r -d '' -a FILES <<< "$JS_FILES"
                       for FILE in "${FILES[@]}"; do
                           echo "Uploading asset: $FILE"
                           gh release upload ${{ github.event.release.tag_name }} "$FILE" --repo=${{ github.repository }} --token=${{ secrets.GITHUB_TOKEN }}
