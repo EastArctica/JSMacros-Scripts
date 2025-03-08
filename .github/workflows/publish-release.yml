@@ -7,6 +7,8 @@ on:
 jobs:
     Build-And-Publish:
         runs-on: ubuntu-latest
+        permissions:
+            contents: write
         strategy:
             matrix:
                 node-version: [lts/jod]
