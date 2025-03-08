@@ -1,19 +1,20 @@
 import * as path from 'path';
 import { fileURLToPath } from 'url';
 import { glob } from 'glob';
+import type { Configuration } from '@rspack/core';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const mainTsFiles = glob.sync('./src/**/main.ts').map((filePath) => path.posix.normalize(filePath));
 
-const entry = mainTsFiles.reduce((acc, filePath) => {
+const entry = mainTsFiles.reduce((acc: Record<string, string>, filePath) => {
     const entryName = path.basename(path.dirname(filePath));
     acc[entryName] = './' + filePath;
     return acc;
 }, {});
 
-const config = {
+const config: Configuration = {
     mode: process.env.NODE_ENV === 'development' ? 'development' : 'production',
     entry,
     output: {
