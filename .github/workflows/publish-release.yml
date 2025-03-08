@@ -55,14 +55,14 @@ jobs:
                   else
                       for FILE in "${FILES[@]}"; do
                           echo "Uploading asset: $FILE"
-                          gh release upload ${{ github.event.release.tag_name }} "$FILE" --repo=${{ github.repository }} --token=${{ secrets.GITHUB_TOKEN }}
+                          gh release upload ${{ github.event.release.tag_name }} "$FILE" --repo=${{ github.repository }}
                       done
                   fi
 
             - name: Upload metadata to the Github release
               uses: actions/upload-release-asset@v1
               env:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               with:
                   upload_url: ${{ github.event.release.upload_url }}
                   asset_path: dist/metadata.json
