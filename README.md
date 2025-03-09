@@ -52,7 +52,7 @@ updateScript(file.getAbsolutePath(), 'EastArctica/JSMacros-Scripts', './config/E
 export default event;
 ```
 
-`manifest.json`
+`manifest.json` (Note that the comments must be removed to be a valid json file)
 
 ```json
 {
