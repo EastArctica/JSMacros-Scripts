@@ -2,6 +2,8 @@ import { Endpoints } from '@octokit/types';
 import Config from './Config';
 import ChatHelper from './ChatHelper';
 
+const CONFIG_ID = 'updater';
+
 type GetReleasesResponse = Endpoints['GET /repos/{owner}/{repo}/releases/latest']['response']['data'];
 
 function getLatestReleaseInfo(repo: string) {
@@ -44,13 +46,15 @@ export function updateScript(path: string, repo: string, configPath: string): bo
     }
     const latestVersion = metadata[scriptName].version;
 
-    const config = Config.readConfig(configPath, {
-        updater: {
+    const config = Config.readConfig(
+        configPath,
+        {
             [scriptName]: {
                 version: '0.0.0',
             },
         },
-    });
+        CONFIG_ID
+    );
     const currentVersion = config.updater[scriptName].version;
     if (currentVersion === latestVersion) return;
 
@@ -72,7 +76,7 @@ export function updateScript(path: string, repo: string, configPath: string): bo
     ChatHelper.success(`[Updater] Updated ${scriptName} from ${currentVersion || 'unknown'} to ${latestVersion}`);
 
     config.updater[scriptName].version = latestVersion;
-    Config.writeConfig(configPath, config, 4);
+    Config.writeConfig(configPath, config, CONFIG_ID);
 
     return true;
 }
